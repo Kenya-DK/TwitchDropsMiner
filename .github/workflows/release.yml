@@ -97,7 +97,7 @@ jobs:
       - name: Install system dependencies
         run: |
           sudo apt update
-          sudo apt install gir1.2-appindicator3-0.1 libgirepository1.0-dev python3-tk
+          sudo apt install -y gir1.2-appindicator3-0.1 libgirepository1.0-dev python3-tk
 
       - name: Install project dependencies
         run: |
@@ -163,7 +163,7 @@ jobs:
       - name: Install system dependencies
         run: |
           sudo apt update
-          sudo apt install libgirepository1.0-dev python3-testresources meson ninja-build pkg-config
+          sudo apt install -y libgirepository1.0-dev python3-testresources meson ninja-build pkg-config
 
       - name: Download AppImage Builder
         run: |
