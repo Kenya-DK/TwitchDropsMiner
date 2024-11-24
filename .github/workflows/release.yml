@@ -163,7 +163,7 @@ jobs:
       - name: Install system dependencies
         run: |
           sudo apt update
-          sudo apt install python3-pip python3-dev libgirepository1.0-dev libcairo2-dev meson build-essential
+          sudo apt install -y python3-pip python3-dev libgirepository1.0-dev libcairo2-dev meson build-essential ninja-build
 
       - name: Download AppImage Builder
         run: |
