@@ -141,7 +141,8 @@
         "tray_notifications": "Oznámení v systémové liště:",
         "priority_only": "Pouze prioritní: ",
         "prioritize_by_ending_soonest": "Upřednostnit kampaně podle data ukončení:",
-        "proxy": "Proxy:"
+        "proxy": "Proxy:",
+        "web_hook": "Webhook URL:"
       },
       "game_name": "Název Hry",
       "priority": "Priorita",

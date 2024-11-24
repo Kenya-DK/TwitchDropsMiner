@@ -23,6 +23,7 @@ from typing import (
     Any, Literal, MutableSet, Callable, Generic, Mapping, TypeVar, cast, TYPE_CHECKING
 )
 
+import aiohttp
 import yarl
 from PIL.ImageTk import PhotoImage
 from PIL import Image as Image_module
@@ -244,7 +245,20 @@ def json_save(path: Path, contents: Mapping[Any, Any], *, sort: bool = False) ->
     with open(path, 'w', encoding="utf8") as file:
         json.dump(contents, file, default=_serialize, sort_keys=sort, indent=4)
 
+def send_discord_webhook(url: str, data: JsonType) -> None:
+    if not url:
+        return
+    headers = {
+        "Content-Type": "application/json",
+    }
+    asyncio.create_task(_send_discord_webhook(url, data, headers))
 
+async def _send_discord_webhook(url: str, data: JsonType, headers: dict[str, str]) -> None:
+    async with aiohttp.ClientSession() as session:
+        async with session.post(url, json=data, headers=headers) as response:
+            if response.status != 204:
+                logger.error("Failed to send Discord webhook, status %s", response.status)
+                
 def webopen(url: str):
     if IS_PACKAGED and sys.platform == "linux":
         # https://pyinstaller.org/en/stable/

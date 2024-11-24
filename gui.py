@@ -1492,6 +1492,12 @@ def proxy_validate(entry: PlaceholderEntry, settings: Settings) -> bool:
     settings.proxy = url
     return valid
 
+def web_hook_validate(entry: PlaceholderEntry, settings: Settings) -> bool:
+    if not entry.get().strip().startswith("https://discord.com/api/webhooks/"):
+        entry.clear()
+        return False
+    settings.web_hook = entry.get().strip()
+    return True
 
 class _SettingsVars(TypedDict):
     tray: IntVar
@@ -1502,6 +1508,7 @@ class _SettingsVars(TypedDict):
     prioritize_by_ending_soonest: IntVar
     tray_notifications: IntVar
     window_position: StringVar
+    web_hook: StringVar
 
 
 class SettingsPanel:
@@ -1522,6 +1529,7 @@ class SettingsPanel:
             "prioritize_by_ending_soonest": IntVar(master, self._settings.prioritize_by_ending_soonest),
             "tray_notifications": IntVar(master, self._settings.tray_notifications),
             "window_position": IntVar(master, self._settings.window_position),
+            "web_hook": StringVar(master, self._settings.web_hook),
         }
         master.rowconfigure(0, weight=1)
         master.columnconfigure(0, weight=1)
@@ -1605,6 +1613,19 @@ class SettingsPanel:
         )
         self._proxy.config(validatecommand=partial(proxy_validate, self._proxy, self._settings))
         self._proxy.grid(column=0, row=1)
+        # web hook frame
+        web_hook_frame = ttk.Frame(center_frame2)
+        web_hook_frame.grid(column=0, row=3)
+        ttk.Label(web_hook_frame, text=_("gui", "settings", "general", "web_hook")).grid(column=0, row=0)
+        self._web_hook = PlaceholderEntry(
+            web_hook_frame,
+            validate="focusout",
+            width=37,
+            textvariable=self._vars["web_hook"],
+            placeholder="https://discord.com/api/webhooks/...",
+        )
+        self._web_hook.config(validatecommand=partial(web_hook_validate, self._web_hook, self._settings))
+        self._web_hook.grid(column=0, row=1)
         # Priority section
         priority_frame = ttk.LabelFrame(
             center_frame, padding=(4, 0, 4, 4), text=_("gui", "settings", "priority")

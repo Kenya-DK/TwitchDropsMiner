@@ -141,7 +141,8 @@
         "tray_notifications": "Mostrar notificaciones: ",
         "priority_only": "Minar solo juegos preferidos: ",
         "prioritize_by_ending_soonest": "Priorizar campañas por fecha de finalización: ",
-        "proxy": "Proxy (requiere reinicio):"
+        "proxy": "Proxy (requiere reinicio):",
+        "web_hook": "Webhook URL:"
       },
       "game_name": "Nombre del juego",
       "priority": "Lista de juegos preferidos",

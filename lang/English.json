@@ -141,7 +141,8 @@
                 "tray_notifications": "Tray notifications: ",
                 "priority_only": "Priority Only: ",
                 "prioritize_by_ending_soonest": "Prioritize by ending soonest: ",
-                "proxy": "Proxy (requires restart):"
+                "proxy": "Proxy (requires restart):",
+                "web_hook": "Webhook URL:"
             },
             "game_name": "Game name",
             "priority": "Priority",

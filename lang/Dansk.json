@@ -141,7 +141,8 @@
         "tray_notifications": "Bakkemeddelelser: ",
         "priority_only": "Kun prioritet: ",
         "prioritize_by_ending_soonest": "Prioriter efter først afsluttet:",
-        "proxy": "Proxy (kræver genstart):"
+        "proxy": "Proxy (kræver genstart):",
+        "web_hook": "Webhook URL:"
       },
       "game_name": "Spilnavn",
       "priority": "Prioritet",

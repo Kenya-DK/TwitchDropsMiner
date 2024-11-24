@@ -58,6 +58,7 @@ from utils import (
     OrderedSet,
     AwaitableValue,
     ExponentialBackoff,
+    send_discord_webhook,
 )
 from constants import (
     CALL,
@@ -886,6 +887,16 @@ class Twitch:
                 else:
                     # with no games available, we switch to IDLE after cleanup
                     self.print(_("status", "no_campaign"))
+                    send_discord_webhook(self.settings.web_hook, {                        
+                        "content": None,
+                        "embeds": [
+                            {
+                            "description": _("status", "no_campaign"),
+                            "color": 7285991
+                            }
+                        ],
+                        "attachments": []                        
+                    })
                     self.change_state(State.IDLE)
             elif self._state is State.CHANNELS_FETCH:
                 self.gui.status.update(_("gui", "status", "gathering"))
@@ -1027,6 +1038,16 @@ class Twitch:
                 else:
                     # not watching anything and there isn't anything to watch either
                     self.print(_("status", "no_channel"))
+                    send_discord_webhook(self.settings.web_hook, {                        
+                        "content": None,
+                        "embeds": [
+                            {
+                            "description": _("status", "no_channel"),
+                            "color": 7285991
+                            }
+                        ],
+                        "attachments": []                        
+                    })
                     self.change_state(State.IDLE)
                 del new_watching, selected_channel, watching_channel
             elif self._state is State.EXIT:
@@ -1293,6 +1314,17 @@ class Twitch:
                     and self.should_switch(channel)  # and we should!
                 ):
                     self.print(_("status", "goes_online").format(channel=channel.name))
+                    send_discord_webhook(self.settings.web_hook, {                        
+                        "content": None,
+                        "embeds": [
+                            {
+                            "description": _("status", "goes_online"),
+                            "color": 7285991
+                            }
+                        ],
+                        "attachments": []
+                        }
+                    )
                     self.watch(channel)
                 else:
                     logger.info(f"{channel.name} goes ONLINE")
@@ -1359,6 +1391,17 @@ class Twitch:
                 # two different claim texts, becase a new line after the game name
                 # looks ugly in the output window - replace it with a space
                 self.print(_("status", "claimed_drop").format(drop=claim_text.replace('\n', ' ')))
+                send_discord_webhook(self.settings.web_hook, {
+                        "content": None,
+                        "embeds": [
+                            {
+                            "description": _("status", "claimed_drop").format(drop=claim_text.replace('\n', ' ')),
+                            "color": 7285991
+                            }
+                        ],
+                        "attachments": []
+                        }
+                    )
                 self.gui.tray.notify(claim_text, _("gui", "tray", "notification_title"))
             else:
                 logger.error(f"Drop claim failed! Drop ID: {drop_id}")
@@ -1471,11 +1514,33 @@ class Twitch:
                 channel.points = balance
                 channel.display()
             self.print(_("status", "earned_points").format(points=f"{points:3}", balance=balance))
+            send_discord_webhook(self.settings.web_hook, {                    
+                    "content": None,
+                    "embeds": [
+                        {
+                        "description": _("status", "earned_points").format(points=f"{points:3}", balance=balance),
+                        "color": 7285991
+                        }
+                    ],
+                    "attachments": []
+                    }
+                )
         elif msg_type == "claim-available":
             claim_data = message["data"]["claim"]
             points = claim_data["point_gain"]["total_points"]
             await self.claim_points(claim_data["channel_id"], claim_data["id"])
             self.print(_("status", "claimed_points").format(points=points))
+            send_discord_webhook(self.settings.web_hook, {                    
+                    "content": None,
+                    "embeds": [
+                        {
+                        "description": _("status", "claimed_points").format(points=points),
+                        "color": 7285991
+                        }
+                    ],
+                    "attachments": []
+                    }
+                )
 
     async def get_auth(self) -> _AuthState:
         await self._auth_state.validate()
@@ -1514,6 +1579,17 @@ class Twitch:
                     yield response
                     return
                 self.print(_("error", "site_down").format(seconds=round(delay)) + f"\nResponse: {response}" + f"\nStatus: {response.status}")
+                send_discord_webhook(self.settings.web_hook, {
+                    "content": None,
+                    "embeds": [
+                        {
+                        "description": _("error", "site_down").format(seconds=round(delay)),
+                        "color": 7285991
+                        }
+                    ],
+                    "attachments": []
+                    }
+                )
             except aiohttp.ClientConnectorCertificateError:  # type: ignore[unused-ignore]
                 # for a case where SSL verification fails
                 raise

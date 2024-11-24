@@ -24,6 +24,7 @@ class SettingsFile(TypedDict):
     connection_quality: int
     tray_notifications: bool
     window_position: str
+    web_hook: str
 
 
 default_settings: SettingsFile = {
@@ -39,6 +40,7 @@ default_settings: SettingsFile = {
     "language": DEFAULT_LANG,
     "tray_notifications": True,
     "window_position": "",
+    "web_hook": ""
 }
 
 
@@ -64,6 +66,7 @@ class Settings:
     connection_quality: int
     tray_notifications: bool
     window_position: str
+    web_hook: str
 
     PASSTHROUGH = ("_settings", "_args", "_altered")
 

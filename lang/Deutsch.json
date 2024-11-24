@@ -141,7 +141,8 @@
         "tray_notifications": "System Tray Benachrichtigungen:",
         "priority_only": "Nur Priorität: ",
         "prioritize_by_ending_soonest": "Kampagnen nach Ende priorisieren: ",
-        "proxy": "Proxy (Erfordert Neustart):"
+        "proxy": "Proxy (Erfordert Neustart):",
+        "web_hook": "Webhook URL:"
       },
       "game_name": "Spiel",
       "priority": "Priorität",
