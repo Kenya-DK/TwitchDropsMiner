@@ -4,11 +4,11 @@ on:
   pull_request:
     types: [closed]
     branches:
-      - 'master'
+      - "master"
   workflow_dispatch:
 
 env:
-  PYTHON_VERSION: '3.10'
+  PYTHON_VERSION: "3.10"
 
 jobs:
   windows:
@@ -163,7 +163,7 @@ jobs:
       - name: Install system dependencies
         run: |
           sudo apt update
-          sudo apt install libgirepository1.0-dev python3-testresources
+          sudo apt install python3-pip python3-dev libgirepository1.0-dev libcairo2-dev meson build-essential
 
       - name: Download AppImage Builder
         run: |
@@ -224,7 +224,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           path: artifacts
-      
+
       - name: Read patch notes from file
         id: patch_notes
         uses: juliangruber/read-file-action@v1.1.7
@@ -246,7 +246,7 @@ jobs:
 
             - Last build date: `${{ steps.vars.outputs.date_now }}`
             - Reference commit: ${{ github.sha }}
-            
+
             ***
             ## Patch notes:
             ${{ steps.patch_notes.outputs.content }}
