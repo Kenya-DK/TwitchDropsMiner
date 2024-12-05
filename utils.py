@@ -245,19 +245,37 @@ def json_save(path: Path, contents: Mapping[Any, Any], *, sort: bool = False) ->
     with open(path, 'w', encoding="utf8") as file:
         json.dump(contents, file, default=_serialize, sort_keys=sort, indent=4)
 
-def send_discord_webhook(url: str, data: JsonType) -> None:
+def send_discord_webhook(url: str, message: str) -> None:
+    send_discord_embeds(url, [
+            {
+            "description": message,
+            "color": 7285991
+            }
+        ])
+
+def send_discord_embeds(url: str, embeds: JsonType) -> None:
     if not url:
+        print("No Discord webhook URL provided, skipping")
         return
     headers = {
         "Content-Type": "application/json",
     }
-    asyncio.create_task(_send_discord_webhook(url, data, headers))
+    asyncio.create_task(_send_discord_webhook(url, {
+        "content": None,
+        "embeds": embeds,
+        "attachments": []                        
+    }, headers))
+
 
 async def _send_discord_webhook(url: str, data: JsonType, headers: dict[str, str]) -> None:
     async with aiohttp.ClientSession() as session:
         async with session.post(url, json=data, headers=headers) as response:
             if response.status != 204:
+                print("Failed to send Discord webhook, status %s", response.status)
                 logger.error("Failed to send Discord webhook, status %s", response.status)
+            else:
+                print("Discord webhook sent successfully")
+                logger.info("Discord webhook sent successfully")
                 
 def webopen(url: str):
     if IS_PACKAGED and sys.platform == "linux":

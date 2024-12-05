@@ -51,6 +51,7 @@ from exceptions import (
 from utils import (
     CHARS_HEX_LOWER,
     chunk,
+    send_discord_embeds,
     timestamp,
     create_nonce,
     task_wrapper,
@@ -101,6 +102,7 @@ class _AuthState:
         self._lock = asyncio.Lock()
         self._logged_in = asyncio.Event()
         self.user_id: int
+        self.user_name: str
         self.device_id: str
         self.session_id: str
         self.access_token: str
@@ -126,6 +128,7 @@ class _AuthState:
     def clear(self) -> None:
         self._delattrs(
             "user_id",
+            "user_name",
             "device_id",
             "session_id",
             "access_token",
@@ -572,9 +575,10 @@ class _AuthState:
             if validate_response["client_id"] != client_info.CLIENT_ID:
                 raise MinerException("You're using an old cookie file, please generate a new one.")
             self.user_id = int(validate_response["user_id"])
+            self.user_name = str(validate_response["login"])
             cookie["persistent"] = str(self.user_id)
-            logger.info(f"Login successful, user ID: {self.user_id}")
-            login_form.update(_("gui", "login", "logged_in"), self.user_id)
+            logger.info(f"Login successful, user: {self.user_name} ({self.user_id})")
+            login_form.update(_("gui", "login", "logged_in"), self.user_name)
             # update our cookie and save it
             jar.update_cookies(cookie, client_info.CLIENT_URL)
             jar.save(COOKIES_PATH)
@@ -734,6 +738,7 @@ class Twitch:
         """
         Can be used to print messages within the GUI.
         """
+        send_discord_webhook(self.settings.web_hook, message)
         self.gui.print(message)
 
     def save(self, *, force: bool = False) -> None:
@@ -887,16 +892,6 @@ class Twitch:
                 else:
                     # with no games available, we switch to IDLE after cleanup
                     self.print(_("status", "no_campaign"))
-                    send_discord_webhook(self.settings.web_hook, {                        
-                        "content": None,
-                        "embeds": [
-                            {
-                            "description": _("status", "no_campaign"),
-                            "color": 7285991
-                            }
-                        ],
-                        "attachments": []                        
-                    })
                     self.change_state(State.IDLE)
             elif self._state is State.CHANNELS_FETCH:
                 self.gui.status.update(_("gui", "status", "gathering"))
@@ -1038,16 +1033,6 @@ class Twitch:
                 else:
                     # not watching anything and there isn't anything to watch either
                     self.print(_("status", "no_channel"))
-                    send_discord_webhook(self.settings.web_hook, {                        
-                        "content": None,
-                        "embeds": [
-                            {
-                            "description": _("status", "no_channel"),
-                            "color": 7285991
-                            }
-                        ],
-                        "attachments": []                        
-                    })
                     self.change_state(State.IDLE)
                 del new_watching, selected_channel, watching_channel
             elif self._state is State.EXIT:
@@ -1314,17 +1299,6 @@ class Twitch:
                     and self.should_switch(channel)  # and we should!
                 ):
                     self.print(_("status", "goes_online").format(channel=channel.name))
-                    send_discord_webhook(self.settings.web_hook, {                        
-                        "content": None,
-                        "embeds": [
-                            {
-                            "description": _("status", "goes_online"),
-                            "color": 7285991
-                            }
-                        ],
-                        "attachments": []
-                        }
-                    )
                     self.watch(channel)
                 else:
                     logger.info(f"{channel.name} goes ONLINE")
@@ -1391,17 +1365,6 @@ class Twitch:
                 # two different claim texts, becase a new line after the game name
                 # looks ugly in the output window - replace it with a space
                 self.print(_("status", "claimed_drop").format(drop=claim_text.replace('\n', ' ')))
-                send_discord_webhook(self.settings.web_hook, {
-                        "content": None,
-                        "embeds": [
-                            {
-                            "description": _("status", "claimed_drop").format(drop=claim_text.replace('\n', ' ')),
-                            "color": 7285991
-                            }
-                        ],
-                        "attachments": []
-                        }
-                    )
                 self.gui.tray.notify(claim_text, _("gui", "tray", "notification_title"))
             else:
                 logger.error(f"Drop claim failed! Drop ID: {drop_id}")
@@ -1514,33 +1477,11 @@ class Twitch:
                 channel.points = balance
                 channel.display()
             self.print(_("status", "earned_points").format(points=f"{points:3}", balance=balance))
-            send_discord_webhook(self.settings.web_hook, {                    
-                    "content": None,
-                    "embeds": [
-                        {
-                        "description": _("status", "earned_points").format(points=f"{points:3}", balance=balance),
-                        "color": 7285991
-                        }
-                    ],
-                    "attachments": []
-                    }
-                )
         elif msg_type == "claim-available":
             claim_data = message["data"]["claim"]
             points = claim_data["point_gain"]["total_points"]
             await self.claim_points(claim_data["channel_id"], claim_data["id"])
             self.print(_("status", "claimed_points").format(points=points))
-            send_discord_webhook(self.settings.web_hook, {                    
-                    "content": None,
-                    "embeds": [
-                        {
-                        "description": _("status", "claimed_points").format(points=points),
-                        "color": 7285991
-                        }
-                    ],
-                    "attachments": []
-                    }
-                )
 
     async def get_auth(self) -> _AuthState:
         await self._auth_state.validate()
@@ -1579,17 +1520,6 @@ class Twitch:
                     yield response
                     return
                 self.print(_("error", "site_down").format(seconds=round(delay)) + f"\nResponse: {response}" + f"\nStatus: {response.status}")
-                send_discord_webhook(self.settings.web_hook, {
-                    "content": None,
-                    "embeds": [
-                        {
-                        "description": _("error", "site_down").format(seconds=round(delay)),
-                        "color": 7285991
-                        }
-                    ],
-                    "attachments": []
-                    }
-                )
             except aiohttp.ClientConnectorCertificateError:  # type: ignore[unused-ignore]
                 # for a case where SSL verification fails
                 raise
@@ -1769,6 +1699,13 @@ class Twitch:
             self._drops.update({drop.id: drop for drop in campaign.drops})
             if campaign.can_earn_within(next_hour):
                 switch_triggers.update(campaign.time_triggers)
+            
+            embeds = []
+            if (campaign.linked and campaign.active and not campaign.finished):
+                embeds.append(campaign.create_discord_embed(7285991))
+            if (embeds.__len__() > 0):
+                send_discord_embeds(self.settings.web_hook, embeds)
+
             # NOTE: this fetches pictures from the CDN, so might be slow without a cache
             await self.gui.inv.add_campaign(campaign)
             # this is needed here explicitly, because images aren't always fetched

@@ -5,10 +5,11 @@ from itertools import chain
 from typing import TYPE_CHECKING
 from functools import cached_property
 from datetime import datetime, timedelta, timezone
+import time
 
 from channel import Channel
 from constants import GQL_OPERATIONS, URLType
-from utils import timestamp, invalidate_cache, Game
+from utils import send_discord_webhook, timestamp, invalidate_cache, Game
 
 if TYPE_CHECKING:
     from collections import abc
@@ -127,6 +128,7 @@ class BaseDrop:
         )
 
     def _on_claim(self) -> None:
+        send_discord_webhook(f"Claimed drop: {self.name} from {self.campaign.game.name}")
         invalidate_cache(self, "preconditions_met")
 
     def update_claim(self, claim_id: str):
@@ -360,3 +362,25 @@ class DropsCampaign:
             and self.starts_at < stamp
             and any(drop.can_earn_within(stamp) for drop in self.drops)
         )
+    
+    def create_discord_embed(self, color: int):
+        drops = []
+        # Convert to Unix timestamp
+        unix_start_timestamp = int(time.mktime(self.starts_at.timetuple()))
+        unix_end_timestamp = int(time.mktime(self.ends_at.timetuple()))
+        for drop in self.drops:
+
+            drops.append({
+                "name": drop.rewards_text(),
+                "value": f"```{drop.current_minutes}/{drop.required_minutes}```",
+                "inline": True
+            })
+        return {
+                "title": self.name,
+                "description": "**Start:**" + f"<t:{unix_start_timestamp}:R>" + "\n**End:**" + f"<t:{unix_end_timestamp}:R>" + "\n\n**Allowed Channels:**\n```\n" + "\n".join([channel.name for channel in self.allowed_channels]) + "```",
+                "color": color,
+                "fields": drops,
+                "thumbnail": {
+                    "url": self.image_url
+                }
+            }
