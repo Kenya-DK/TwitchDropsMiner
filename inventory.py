@@ -9,11 +9,11 @@ import time
 
 from channel import Channel
 from constants import GQL_OPERATIONS, URLType
-from utils import send_discord_webhook, timestamp, invalidate_cache, Game
+from utils import timestamp, invalidate_cache, Game
 
 if TYPE_CHECKING:
     from collections import abc
-
+    from settings import Settings
     from twitch import Twitch
     from constants import JsonType
     from gui import GUIManager, InventoryOverview
@@ -128,7 +128,6 @@ class BaseDrop:
         )
 
     def _on_claim(self) -> None:
-        send_discord_webhook(f"Claimed drop: {self.name} from {self.campaign.game.name}")
         invalidate_cache(self, "preconditions_met")
 
     def update_claim(self, claim_id: str):
