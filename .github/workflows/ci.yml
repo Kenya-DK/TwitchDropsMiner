@@ -192,7 +192,9 @@ jobs:
         with:
           if-no-files-found: error
           name: Twitch.Drops.Miner.Linux.AppImage
-          path: Twitch.Drops.Miner.Linux.AppImage.zip
+          path: |
+            Twitch.Drops.Miner.Linux.AppImage.zip
+            *.AppImage
 
   update_releases_page:
     #NOTEif: github.event.pull_request.merged == true || github.event_name == 'push'
@@ -223,9 +225,6 @@ jobs:
           artifactErrorsFailBuild: true
           artifacts: artifacts/*/*
           body: |
-            # ⚠️ Please help with translation as tracked in #2 !
-
-            ***
             **This is an automatically generated in-development pre-release version of the application, that includes the latest in-dev branch changes.**
             **⚠️ This build is not stable and may end up terminating with a fatal error. ⚠️**
             **Use at your own risk.**

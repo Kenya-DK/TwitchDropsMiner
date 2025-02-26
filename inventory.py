@@ -8,6 +8,7 @@ from datetime import datetime, timedelta, timezone
 import time
 
 from channel import Channel
+from exceptions import GQLException
 from constants import GQL_OPERATIONS, URLType
 from utils import timestamp, invalidate_cache, Game
 
@@ -153,11 +154,16 @@ class BaseDrop:
             return True
         if not self.can_claim:
             return False
-        response = await self._twitch.gql_request(
-            GQL_OPERATIONS["ClaimDrop"].with_variables(
-                {"input": {"dropInstanceID": self.claim_id}}
+        try:
+            response = await self._twitch.gql_request(
+                GQL_OPERATIONS["ClaimDrop"].with_variables(
+                    {"input": {"dropInstanceID": self.claim_id}}
+                )
             )
-        )
+        except GQLException:
+            # regardless of the error, we have to assume
+            # the claiming operation has potentially failed
+            return False
         data = response["data"]
         if "errors" in data and data["errors"]:
             return False
