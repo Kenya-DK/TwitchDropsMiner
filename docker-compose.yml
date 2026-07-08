@@ -1,0 +1,14 @@
+services:
+  twitch-drops-miner:
+    build: .
+    container_name: twitch-drops-miner
+    ports:
+      - "5800:5800"
+    volumes:
+      - ./settings.json:/TwitchDropsMiner/settings.json
+      - ./cookies.jar:/TwitchDropsMiner/cookies.jar
+      - ./cache:/TwitchDropsMiner/cache
+      - ./log.txt:/TwitchDropsMiner/log.txt
+    environment:
+      - DARK_MODE=1
+    restart: unless-stopped
