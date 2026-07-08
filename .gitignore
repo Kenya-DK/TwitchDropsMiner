@@ -4,6 +4,7 @@ __pycache__
 # Build and dist files
 /build
 /dist
+/config
 /*.exe
 /*.zip
 /*.tmp

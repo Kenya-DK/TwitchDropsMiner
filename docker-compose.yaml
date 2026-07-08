@@ -2,11 +2,16 @@ services:
   twitch-drops-miner:
     build: .
     container_name: twitch-drops-miner
+    restart: on-failure
+    pull_policy: always
     ports:
       - "5800:5800"
-    volumes:
-      - ./config:/TwitchDropsMiner/config
-      - ./cache:/TwitchDropsMiner/cache
     environment:
       - DARK_MODE=1
-    restart: unless-stopped
+      - USER_ID=568
+      - GROUP_ID=568
+    volumes:
+      - ./config:/config
+      - cache:/cache
+volumes:
+  cache:

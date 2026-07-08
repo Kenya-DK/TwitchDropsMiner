@@ -100,13 +100,14 @@ SCRIPTS_PATH = Path(VENV_PATH, SYS_SCRIPTS)
 # NOTE: These don't have to be available to the end-user, so the path points to the internal dir
 LANG_PATH = _resource_path("lang")
 # Other Paths
+CONFIG_PATH = Path(WORKING_DIR, "config")
 LOG_PATH = Path(WORKING_DIR, "log.txt")
 DUMP_PATH = Path(WORKING_DIR, "dump.dat")
 LOCK_PATH = Path(WORKING_DIR, "lock.file")
 CACHE_PATH = Path(WORKING_DIR, "cache")
 CACHE_DB = Path(CACHE_PATH, "mapping.json")
-COOKIES_PATH = Path(WORKING_DIR, "cookies.jar")
-SETTINGS_PATH = Path(WORKING_DIR, "settings.json")
+COOKIES_PATH = Path(CONFIG_PATH, "cookies.jar")
+SETTINGS_PATH = Path(CONFIG_PATH, "settings.json")
 # Typing
 JsonType = Dict[str, Any]
 URLType = NewType("URLType", str)
