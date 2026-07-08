@@ -53,7 +53,8 @@ RUN add-pkg \
     libx11 \
     libxrender \
     gtk+3.0 \
-    gobject-introspection
+    gobject-introspection \
+    libayatana-appindicator
 
 # Create TwitchDropsMiner directory
 RUN mkdir -p /TwitchDropsMiner
@@ -66,7 +67,7 @@ RUN mkdir -p /config /cache && \
     ln -s /config /TwitchDropsMiner/config && \
     ln -s /cache /TwitchDropsMiner/cache
 
-RUN chmod -R 777 /TwitchDropsMiner
+RUN chmod -R 777 /TwitchDropsMiner /config /cache
 RUN chown -R 1000:1000 /TwitchDropsMiner /config /cache
 
 # Copy the start script
