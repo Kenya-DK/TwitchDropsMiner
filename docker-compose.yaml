@@ -5,10 +5,8 @@ services:
     ports:
       - "5800:5800"
     volumes:
-      - ./settings.json:/TwitchDropsMiner/settings.json
-      - ./cookies.jar:/TwitchDropsMiner/cookies.jar
+      - ./config:/TwitchDropsMiner/config
       - ./cache:/TwitchDropsMiner/cache
-      - ./log.txt:/TwitchDropsMiner/log.txt
     environment:
       - DARK_MODE=1
     restart: unless-stopped
