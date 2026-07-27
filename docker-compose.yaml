@@ -4,8 +4,6 @@ services:
     container_name: twitch-drops-miner
     restart: on-failure
     pull_policy: always
-    ports:
-      - "5800:5800"
     environment:
       - DARK_MODE=1
       - USER_ID=568
