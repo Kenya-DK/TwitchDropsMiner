@@ -24,7 +24,7 @@ COPY . .
 
 # Create venv, install deps, build binary
 RUN python3 -m venv env && \
-    . env/bin/activate && \
+    env/bin/activate && \
     pip install --upgrade pip wheel && \
     pip install --no-cache-dir -r requirements.txt pyinstaller && \
     pyinstaller build.spec && \
