@@ -24,12 +24,11 @@ COPY . .
 
 # Create venv, install deps, build binary
 RUN python3 -m venv env && \
-    env/bin/activate && \
-    pip install --upgrade pip wheel && \
-    pip install --no-cache-dir -r requirements.txt pyinstaller && \
-    pyinstaller build.spec && \
-    # Rename the binary to avoid spaces in filename
+    env/bin/pip install --upgrade pip wheel && \
+    env/bin/pip install --no-cache-dir -r requirements.txt pyinstaller && \
+    env/bin/pyinstaller build.spec && \
     mv "/app/dist/Twitch Drops Miner (by DevilXD)" /app/dist/TwitchDropsMiner
+
 
 # ---- Runtime Stage ----
 FROM jlesage/baseimage-gui:alpine-3.18-v4.7
