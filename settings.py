@@ -23,6 +23,8 @@ class SettingsFile(TypedDict):
     enable_badges_emotes: bool
     available_drops_check: bool
     priority_mode: PriorityMode
+    webhook_url: URL
+    webhook_enabled: bool
 
 
 default_settings: SettingsFile = {
@@ -37,6 +39,8 @@ default_settings: SettingsFile = {
     "enable_badges_emotes": False,
     "available_drops_check": False,
     "priority_mode": PriorityMode.PRIORITY_ONLY,
+    "webhook_url": URL(),
+    "webhook_enabled": False,
 }
 
 
@@ -61,6 +65,8 @@ class Settings:
     enable_badges_emotes: bool
     available_drops_check: bool
     priority_mode: PriorityMode
+    webhook_url: URL
+    webhook_enabled: bool
 
     PASSTHROUGH = ("_settings", "_args", "_altered")
 

@@ -187,6 +187,12 @@ if __name__ == "__main__":
             client.gui.status.update(_("gui", "status", "terminated"))
             # notify the user about the closure
             client.gui.grab_attention(sound=True)
+            # log the unexpected termination via Discord webhook (if enabled)
+            client.webhook.notify(
+                "App terminated unexpectedly",
+                "Twitch Drops Miner stopped without the user requesting it to close.",
+                color=client.webhook.COLOR_WARNING,
+            )
         await client.gui.wait_until_closed()
         # save the application state
         # NOTE: we have to do it after wait_until_closed,

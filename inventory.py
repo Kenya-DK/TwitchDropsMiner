@@ -179,6 +179,10 @@ class BaseDrop:
                 _("status", "claimed_drop").format(drop=claim_text.replace('\n', ' '))
             )
             self._twitch.gui.tray.notify(claim_text, _("gui", "tray", "notification_title"))
+            # log the claimed drop via Discord webhook (if enabled)
+            self._twitch.webhook.notify(
+                "Drop claimed", claim_text, color=self._twitch.webhook.COLOR_SUCCESS
+            )
         else:
             logger.error(f"Drop claim has potentially failed! Drop ID: {self.id}")
         return result

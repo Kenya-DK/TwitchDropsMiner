@@ -20,6 +20,7 @@ from gui import GUIManager
 from channel import Channel
 from websocket import WebsocketPool
 from inventory import DropsCampaign
+from webhook import WebhookLogger
 from exceptions import (
     ExitRequest,
     GQLException,
@@ -457,6 +458,8 @@ class Twitch:
         self._watching_restart = asyncio.Event()
         # Websocket
         self.websocket = WebsocketPool(self)
+        # Discord webhook notifications
+        self.webhook: WebhookLogger = WebhookLogger(settings)
         # Maintenance task
         self._mnt_task: asyncio.Task[None] | None = None
 
@@ -615,6 +618,7 @@ class Twitch:
         • Changing the stream that's being watched if necessary
         """
         self.gui.start()
+        self.webhook.notify("App started", "Twitch Drops Miner is online and watching for drops.")
         auth_state = await self.get_auth()
         await self.websocket.start()
         # NOTE: watch task is explicitly restarted on each new run

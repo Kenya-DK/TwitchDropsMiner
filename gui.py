@@ -1557,6 +1557,20 @@ def proxy_validate(entry: PlaceholderEntry, settings: Settings) -> bool:
     return valid
 
 
+def webhook_validate(entry: PlaceholderEntry, settings: Settings) -> bool:
+    raw_url = entry.get().strip()
+    entry.replace(raw_url)
+    url = URL(raw_url)
+    valid = url.scheme in ("http", "https") and url.host is not None
+    if not valid:
+        entry.clear()
+        url = URL()
+    settings.webhook_url = url
+    # save immediately, so the webhook config survives restarts/crashes
+    settings.save()
+    return valid
+
+
 class _SettingsVars(TypedDict):
     tray: IntVar
     proxy: StringVar
@@ -1567,6 +1581,8 @@ class _SettingsVars(TypedDict):
     tray_notifications: IntVar
     enable_badges_emotes: IntVar
     available_drops_check: IntVar
+    webhook_url: StringVar
+    webhook_enabled: IntVar
 
 
 class SettingsPanel:
@@ -1606,6 +1622,8 @@ class SettingsPanel:
             "available_drops_check": IntVar(
                 master, int(self._settings.available_drops_check)
             ),
+            "webhook_url": StringVar(master, str(self._settings.webhook_url)),
+            "webhook_enabled": IntVar(master, int(self._settings.webhook_enabled)),
         }
         self._game_names: set[str] = set()
         master.rowconfigure(0, weight=1)
@@ -1698,6 +1716,31 @@ class SettingsPanel:
         )
         self._proxy.config(validatecommand=partial(proxy_validate, self._proxy, self._settings))
         self._proxy.grid(column=0, row=1)
+
+        # Discord webhook frame
+        webhook_frame = ttk.Frame(general_center)
+        webhook_frame.grid(column=0, row=3)
+        ttk.Label(webhook_frame, text="Discord Webhook URL:").grid(column=0, row=0, sticky="e")
+        self._webhook = PlaceholderEntry(
+            webhook_frame,
+            width=37,
+            validate="focusout",
+            prefill="https://",
+            textvariable=self._vars["webhook_url"],
+            placeholder="https://discord.com/api/webhooks/...",
+        )
+        self._webhook.config(
+            validatecommand=partial(webhook_validate, self._webhook, self._settings)
+        )
+        self._webhook.grid(column=1, row=0)
+        ttk.Label(webhook_frame, text="Log events to Discord:").grid(
+            column=0, row=1, sticky="e"
+        )
+        ttk.Checkbutton(
+            webhook_frame,
+            variable=self._vars["webhook_enabled"],
+            command=self.update_webhook_enabled,
+        ).grid(column=1, row=1, sticky="w")
 
         # Advanced section
         advanced_frame = ttk.LabelFrame(
@@ -1852,6 +1895,11 @@ class SettingsPanel:
     def update_dark_mode(self) -> None:
         self._settings.dark_mode = bool(self._vars["dark_mode"].get())
         self._manager.apply_theme(self._settings.dark_mode)
+
+    def update_webhook_enabled(self) -> None:
+        self._settings.webhook_enabled = bool(self._vars["webhook_enabled"].get())
+        # save immediately, so the webhook config survives restarts/crashes
+        self._settings.save()
 
     def _get_self_path(self) -> str:
         # NOTE: we need double quotes in case the path contains spaces
