@@ -38,7 +38,7 @@ FROM jlesage/baseimage-gui:alpine-3.18-v4.7
 # Environment variables
 ENV LANG=en_US.UTF-8 \
     DARK_MODE=1 \
-    KEEP_APP_RUNNING=1 \
+    KEEP_APP_RUNNING=0 \
     APP_ICON_URL=https://raw.githubusercontent.com/Davixk/TwitchDropsMiner/stable/appimage/pickaxe.png
 
 # Install runtime dependencies only
