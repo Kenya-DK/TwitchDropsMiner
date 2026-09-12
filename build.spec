@@ -74,15 +74,25 @@ if sys.platform == "linux":
     candidate_library_paths: list[Path] = [
         Path(f"/usr/lib/{arch}-linux-gnu"),  # Debian/Ubuntu multiarch
         Path("/usr/lib64"),  # Fedora/RHEL
-        Path("/usr/lib"),  # Arch and other single-dir distros
+        Path("/usr/lib"),  # Alpine, Arch and other single-dir distros
     ]
-    for libraries_path in candidate_library_paths:
-        if (libraries_path / "libayatana-appindicator3.so.1").exists():
+    libraries_path: Path | None = None
+    for candidate_path in candidate_library_paths:
+        # Debian-family distros ship libayatana-appindicator3.so.1,
+        # Alpine ships the same library as libayatana-appindicator.so.1
+        for library_name in ("libayatana-appindicator3.so.1", "libayatana-appindicator.so.1"):
+            if (candidate_path / library_name).exists():
+                appindicator_library: Path = candidate_path / library_name
+                libraries_path = candidate_path
+                break
+        if libraries_path is not None:
             break
+    if libraries_path is None:
+        raise FileNotFoundError("Unable to find libayatana-appindicator3.so.1/libayatana-appindicator.so.1")
     datas.append(
         (libraries_path / "girepository-1.0/AyatanaAppIndicator3-0.1.typelib", "gi_typelibs")
     )
-    binaries.append((libraries_path / "libayatana-appindicator3.so.1", "."))
+    binaries.append((appindicator_library, "."))
 
     hiddenimports.extend([
         "gi.repository.Gtk",

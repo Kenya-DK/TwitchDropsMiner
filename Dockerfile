@@ -17,7 +17,8 @@ RUN add-pkg \
     tcl-dev \
     python3-tkinter \
     cairo-dev \
-    gobject-introspection-dev
+    gobject-introspection-dev \
+    libayatana-appindicator
 
 WORKDIR /app
 COPY . .
